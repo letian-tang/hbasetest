@@ -21,6 +21,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -104,6 +105,65 @@ public class HbaseTestMain {
 
 
     }
+    
+    
+    /**
+     * 插入数据
+     * @throws Exception 
+     */
+    @Test
+    public void insertData(){
+        Connection conn = null;
+        HTable hTable = null;
+        try{
+            conn = ConnectionFactory.createConnection(configuration);
+            hTable = (HTable) conn.getTable(TableName.valueOf("test_zp"));
+            //一个PUT代表一行，构造函数传入的是RowKey
+            Put put = new Put((String.valueOf(System.currentTimeMillis())).getBytes());
+            put.addColumn("test_1".getBytes(), null, "这是第一行第一列的数据".getBytes());
+            put.addColumn("test_2".getBytes(), null, "这是第一行第二列的数据".getBytes());
+            put.addColumn("test_3".getBytes(), null, "这是第一行第三列的数据".getBytes());
+            
+            //增加一行
+            Put put2 = new Put((String.valueOf(System.currentTimeMillis())).getBytes());
+            put2.addColumn("test_1".getBytes(), null, "这是第二行第一列的数据".getBytes());
+            put2.addColumn("test_2".getBytes(), null, "这是第二行第二列的数据".getBytes());
+            put2.addColumn("test_3".getBytes(), null, "这是第二行第三列的数据".getBytes());
+            
+           //增加一行
+            Put put3 = new Put((String.valueOf(System.currentTimeMillis())).getBytes());
+            put3.addColumn("test_1".getBytes(), Bytes.toBytes("name1"), "这是第三行第一列的数据".getBytes());
+            put3.addColumn("test_2".getBytes(), Bytes.toBytes("name2"), "这是第三行第二列的数据".getBytes());
+            put3.addColumn("test_3".getBytes(), Bytes.toBytes("name3"), "这是第三行第三列的数据".getBytes());
+            
+            List<Put> puts = new ArrayList<Put>();
+            puts.add(put);
+            puts.add(put2);
+            puts.add(put3);
+            //添加进表中
+            hTable.put(puts);
+            
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            if(null != hTable){
+                try {
+                    hTable.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(null != conn){
+                try {
+                    conn.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+    }
+    
     
     
     /**
@@ -192,8 +252,8 @@ public class HbaseTestMain {
         try{
             conn = ConnectionFactory.createConnection(configuration);
             table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
-            Result rs = table.get(new Get("1445320222118".getBytes()));
-            System.out.println("test表 RowKey为1445320222118的行数据如下：");
+            Result rs = table.get(new Get("1483949313700".getBytes()));
+            System.out.println("test表 RowKey为1483949313700的行数据如下：");
             for(Cell cell : rs.rawCells()){
                 //疑问：同个行，一个列簇里具有多列的查询？
                 System.out.println("列簇为："+new String(CellUtil.cloneFamily(cell)));
@@ -221,56 +281,7 @@ public class HbaseTestMain {
     }
     
     
-    /**
-     * 插入数据
-     * @throws Exception 
-     */
-    @Test
-    public void insertData(){
-        Connection conn = null;
-        HTable hTable = null;
-        try{
-            conn = ConnectionFactory.createConnection(configuration);
-            hTable = (HTable) conn.getTable(TableName.valueOf("test_zp"));
-            //一个PUT代表一行，构造函数传入的是RowKey
-            Put put = new Put((String.valueOf(System.currentTimeMillis())).getBytes());
-            put.addColumn("test_1".getBytes(), null, "这是第一行第一列的数据".getBytes());
-            put.addColumn("test_2".getBytes(), null, "这是第一行第二列的数据".getBytes());
-            put.addColumn("test_3".getBytes(), null, "这是第一行第三列的数据".getBytes());
-            
-            //多增加一行
-            Put put_2 = new Put((String.valueOf(System.currentTimeMillis())).getBytes());
-            put_2.addColumn("test_1".getBytes(), null, "这是第二行第一列的数据".getBytes());
-            put_2.addColumn("test_2".getBytes(), null, "这是第二行第二列的数据".getBytes());
-            put_2.addColumn("test_3".getBytes(), null, "这是第二行第三列的数据".getBytes());
-            
-            List<Put> puts = new ArrayList<Put>();
-            puts.add(put);
-            puts.add(put_2);
-            //添加进表中
-            hTable.put(puts);
-            
-        }catch(Exception e){
-            e.printStackTrace();
-        }finally{
-            if(null != hTable){
-                try {
-                    hTable.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if(null != conn){
-                try {
-                    conn.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        
-    }
-    
+   
     
     
     /**
@@ -283,7 +294,7 @@ public class HbaseTestMain {
         try{
             conn = ConnectionFactory.createConnection(configuration);
             table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
-            Put put = new Put("1445320222118".getBytes());
+            Put put = new Put("1483949313700".getBytes());
             //1.如果没有指定列修饰符，而在这之下已经有内容，则覆盖原先内容
             //2.如果有指定列修饰符，而在该列修饰符下如果存在内容则覆盖
             put.addColumn("test_1".getBytes(), null,"这是第一行第一列的第二个数值".getBytes());
@@ -351,7 +362,7 @@ public class HbaseTestMain {
         try{
             conn = ConnectionFactory.createConnection(configuration);
             table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
-            Put put = new Put("1445320222118".getBytes());
+            Put put = new Put("1483949313700".getBytes());
             put.addColumn("test_1".getBytes(), "1".getBytes(), "test_1_1".getBytes());
             put.addColumn("test_1".getBytes(), "2".getBytes(), "test_1_2".getBytes());
             
@@ -409,7 +420,7 @@ public class HbaseTestMain {
         try{
             conn = ConnectionFactory.createConnection(configuration);
             table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
-            table.delete(new Delete("1445320222120".getBytes()));
+            table.delete(new Delete("1483949313700".getBytes()));
         }catch(Exception e){
             e.printStackTrace();
         }finally{
