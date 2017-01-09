@@ -62,8 +62,8 @@ public class HbaseTestMain {
          * configuration.set("hbase.zookeeper.quorum","172.16.43.10:2181,172.16.43.10:2182,172.16.43.10:2183");
          */
         configuration.set("hbase.zookeeper.quorum",
-                "172.16.43.10:2181,172.16.43.10:2182,172.16.43.10:2183");
-        configuration.set("hbase.master", "172.16.43.10:60000");
+                "master:2181,node1:2181,node2:2181");
+        configuration.set("hbase.master", "master:60010");
     }
 
 
@@ -78,12 +78,12 @@ public class HbaseTestMain {
         try {
             conn = ConnectionFactory.createConnection(configuration);
             HBaseAdmin hBaseAdmin = (HBaseAdmin) conn.getAdmin();
-            HTableDescriptor desc = new HTableDescriptor(TableName.valueOf("test"));
+            HTableDescriptor desc = new HTableDescriptor(TableName.valueOf("test_zp"));
             // 添加列簇
             desc.addFamily(new HColumnDescriptor("test_1"));
             desc.addFamily(new HColumnDescriptor("test_2"));
             desc.addFamily(new HColumnDescriptor("test_3"));
-            if (hBaseAdmin.tableExists("test")) {
+            if (hBaseAdmin.tableExists("test_zp")) {
                 System.out.println("table is exists !");
                 System.exit(0);
             } else {
@@ -121,7 +121,7 @@ public class HbaseTestMain {
         ResultScanner scann = null;
         try{
             conn = ConnectionFactory.createConnection(configuration);
-            table = (HTable) conn.getTable(TableName.valueOf("test"));
+            table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
             
             scann = table.getScanner(new Scan());
             /**
@@ -191,7 +191,7 @@ public class HbaseTestMain {
         HTable table = null;
         try{
             conn = ConnectionFactory.createConnection(configuration);
-            table = (HTable) conn.getTable(TableName.valueOf("test"));
+            table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
             Result rs = table.get(new Get("1445320222118".getBytes()));
             System.out.println("test表 RowKey为1445320222118的行数据如下：");
             for(Cell cell : rs.rawCells()){
@@ -231,7 +231,7 @@ public class HbaseTestMain {
         HTable hTable = null;
         try{
             conn = ConnectionFactory.createConnection(configuration);
-            hTable = (HTable) conn.getTable(TableName.valueOf("test"));
+            hTable = (HTable) conn.getTable(TableName.valueOf("test_zp"));
             //一个PUT代表一行，构造函数传入的是RowKey
             Put put = new Put((String.valueOf(System.currentTimeMillis())).getBytes());
             put.addColumn("test_1".getBytes(), null, "这是第一行第一列的数据".getBytes());
@@ -282,7 +282,7 @@ public class HbaseTestMain {
         HTable table = null;
         try{
             conn = ConnectionFactory.createConnection(configuration);
-            table = (HTable) conn.getTable(TableName.valueOf("test"));
+            table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
             Put put = new Put("1445320222118".getBytes());
             //1.如果没有指定列修饰符，而在这之下已经有内容，则覆盖原先内容
             //2.如果有指定列修饰符，而在该列修饰符下如果存在内容则覆盖
@@ -350,7 +350,7 @@ public class HbaseTestMain {
         HTable table = null;
         try{
             conn = ConnectionFactory.createConnection(configuration);
-            table = (HTable) conn.getTable(TableName.valueOf("test"));
+            table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
             Put put = new Put("1445320222118".getBytes());
             put.addColumn("test_1".getBytes(), "1".getBytes(), "test_1_1".getBytes());
             put.addColumn("test_1".getBytes(), "2".getBytes(), "test_1_2".getBytes());
@@ -382,7 +382,7 @@ public class HbaseTestMain {
         try{
             conn = ConnectionFactory.createConnection(configuration);
             admin = (HBaseAdmin) conn.getAdmin();
-            admin.deleteColumn("test".getBytes(), "test_3");
+            admin.deleteColumn("test_zp".getBytes(), "test_3");
         }catch(Exception e){
             e.printStackTrace();
         }finally{
@@ -408,7 +408,7 @@ public class HbaseTestMain {
         HTable table = null;
         try{
             conn = ConnectionFactory.createConnection(configuration);
-            table = (HTable) conn.getTable(TableName.valueOf("test"));
+            table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
             table.delete(new Delete("1445320222120".getBytes()));
         }catch(Exception e){
             e.printStackTrace();
@@ -442,8 +442,8 @@ public class HbaseTestMain {
             conn = ConnectionFactory.createConnection(configuration);
             admin = (HBaseAdmin) conn.getAdmin();
             //在删除一张表前，要使其失效
-            admin.disableTable("test");
-            admin.deleteTable("test");
+            admin.disableTable("test_zp");
+            admin.deleteTable("test_zp");
         }catch(Exception e){
             e.printStackTrace();
         }finally{
