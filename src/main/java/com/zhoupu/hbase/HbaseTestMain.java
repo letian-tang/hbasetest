@@ -252,7 +252,9 @@ public class HbaseTestMain {
         try{
             conn = ConnectionFactory.createConnection(configuration);
             table = (HTable) conn.getTable(TableName.valueOf("test_zp"));
-            Result rs = table.get(new Get("1483949313700".getBytes()));
+            Get get = new Get("1483949313700".getBytes());
+            
+            Result rs = table.get(get);
             System.out.println("test表 RowKey为1483949313700的行数据如下：");
             for(Cell cell : rs.rawCells()){
                 //疑问：同个行，一个列簇里具有多列的查询？

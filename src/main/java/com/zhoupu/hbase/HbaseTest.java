@@ -42,11 +42,17 @@ public class HbaseTest {
 
             Put put = new Put(Bytes.toBytes("rk0001"));
             
+            //原子性操作 能保证自身操作的原子性: 检查写。
+            /**
+             * 有一种特别的检查通过调用来完成，即只有在另外一个值不存在的情况下，才执行这个修改，要执行这种操作只需要将参数value设置为null即可。只要指定列不存在，就可以执行修改操作。
+             */
             hTable.checkAndPut(Bytes.toBytes("rk0001"), Bytes.toBytes("colfam1"), Bytes.toBytes("qual1"), null, put);
 
             put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("name"), Bytes.toBytes("lisi"));
 
             hTable.put(put);
+            
+            hTable.flushCommits();
 
             hTable.close();
 
