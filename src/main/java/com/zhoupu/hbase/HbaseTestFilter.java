@@ -18,6 +18,7 @@ import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
+import org.apache.hadoop.hbase.filter.ValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Test;
 
@@ -186,5 +187,42 @@ public class HbaseTestFilter {
         Result result = hTable.get(get);
         System.out.println("Result of get():"+result);
     }
+    
+    
+    /**
+     * 值过滤器
+     * @throws Exception
+     */
+    @Test
+    public void testValueFilter() throws Exception {
+        
+        HTable hTable = getHtable();
+        Scan scan = new Scan();
+        
+        Filter failter = new ValueFilter(CompareFilter.CompareOp.EQUAL,
+                new SubstringComparator("0.4"));
+        
+        scan.setFilter(failter);
+        
+        ResultScanner scanner = hTable.getScanner(scan);
+
+        for (Result rs : scanner) {
+            System.out.println(rs);
+        }
+
+        scanner.close();
+        
+        Get get = new Get(Bytes.toBytes("row-5"));
+        get.setFilter(failter);
+        Result result = hTable.get(get);
+        System.out.println("Result of get():"+result);
+    }
+    
+    
+    /**
+     * 参考过滤器
+     * @throws Exception
+     */
+    
 
 }
